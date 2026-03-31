@@ -14,8 +14,9 @@ internal sealed class InputForwarder : IDisposable
     private IntPtr _progman;
     private IntPtr _workerW;
     private IntPtr _shellDefView;
+    private IntPtr _defViewHost;
 
-    public void Start(IntPtr targetHwnd, IntPtr progman, IntPtr workerW, IntPtr shellDefView)
+    public void Start(IntPtr targetHwnd, IntPtr progman, IntPtr workerW, IntPtr shellDefView, IntPtr defViewHost)
     {
         Stop();
 
@@ -23,6 +24,7 @@ internal sealed class InputForwarder : IDisposable
         _progman = progman;
         _workerW = workerW;
         _shellDefView = shellDefView;
+        _defViewHost = defViewHost;
 
         // Must keep delegate reference to prevent GC
         _hookProc = HookCallback;
@@ -69,6 +71,7 @@ internal sealed class InputForwarder : IDisposable
         if (hwnd == IntPtr.Zero) return false;
         if (hwnd == _progman || hwnd == _workerW) return true;
         if (_shellDefView != IntPtr.Zero && hwnd == _shellDefView) return true;
+        if (_defViewHost != IntPtr.Zero && hwnd == _defViewHost) return true;
 
         // Check parent chain (e.g., SysListView32 inside SHELLDLL_DefView)
         var parent = NativeMethods.GetParent(hwnd);

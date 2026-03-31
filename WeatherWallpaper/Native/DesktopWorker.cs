@@ -12,11 +12,13 @@ internal sealed class DesktopWorker
     private IntPtr _progman;
     private IntPtr _workerW;
     private IntPtr _shellDLL_DefView;
+    private IntPtr _defViewHost;
     private bool _isRaisedDesktop;
 
     public IntPtr Progman => _progman;
     public IntPtr WorkerW => _workerW;
     public IntPtr ShellDefView => _shellDLL_DefView;
+    public IntPtr DefViewHost => _defViewHost;
 
     /// <summary>
     /// Initialize the desktop layer by finding/creating WorkerW.
@@ -45,12 +47,14 @@ internal sealed class DesktopWorker
         // Find SHELLDLL_DefView and the WorkerW behind it
         _shellDLL_DefView = IntPtr.Zero;
         _workerW = IntPtr.Zero;
+        _defViewHost = IntPtr.Zero;
 
         NativeMethods.EnumWindows((tophandle, topparamhandle) =>
         {
             IntPtr p = NativeMethods.FindWindowEx(tophandle, IntPtr.Zero, "SHELLDLL_DefView", null);
             if (p != IntPtr.Zero)
             {
+                _defViewHost = tophandle;
                 _workerW = NativeMethods.FindWindowEx(IntPtr.Zero, tophandle, "WorkerW", null);
                 _shellDLL_DefView = p;
             }

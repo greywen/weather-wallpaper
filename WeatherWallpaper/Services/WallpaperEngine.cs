@@ -86,7 +86,8 @@ public sealed class WallpaperEngine : IDisposable
                 _hostForm.Handle,
                 _desktopWorker.Progman,
                 _desktopWorker.WorkerW,
-                _desktopWorker.ShellDefView);
+                _desktopWorker.ShellDefView,
+                _desktopWorker.DefViewHost);
 
             _isRunning = true;
             WallpaperStarted?.Invoke(this, EventArgs.Empty);
