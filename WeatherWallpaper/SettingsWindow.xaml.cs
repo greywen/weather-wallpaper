@@ -1,4 +1,6 @@
+using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using WeatherWallpaper.Models;
 using WeatherWallpaper.Services;
 
@@ -13,6 +15,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow(WallpaperEngine engine, AppSettings settings)
     {
         InitializeComponent();
+        LoadIcon();
 
         _engine = engine;
         _settings = settings;
@@ -120,6 +123,22 @@ public partial class SettingsWindow : Window
     private void HideButton_Click(object sender, RoutedEventArgs e)
     {
         this.Hide();
+    }
+
+    private void LoadIcon()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+            if (File.Exists(iconPath))
+            {
+                Icon = new BitmapImage(new Uri(iconPath, UriKind.Absolute));
+            }
+        }
+        catch
+        {
+            // Ignore icon load errors
+        }
     }
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

@@ -4,8 +4,7 @@
         Title="Weather Wallpaper - 设置"
         Width="500" Height="400"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Icon="app.ico">
+        ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="TextBlock" x:Key="LabelStyle">
             <Setter Property="VerticalAlignment" Value="Center"/>
