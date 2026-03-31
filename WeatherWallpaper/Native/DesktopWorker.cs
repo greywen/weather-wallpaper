@@ -14,6 +14,10 @@ internal sealed class DesktopWorker
     private IntPtr _shellDLL_DefView;
     private bool _isRaisedDesktop;
 
+    public IntPtr Progman => _progman;
+    public IntPtr WorkerW => _workerW;
+    public IntPtr ShellDefView => _shellDLL_DefView;
+
     /// <summary>
     /// Initialize the desktop layer by finding/creating WorkerW.
     /// </summary>
@@ -75,31 +79,27 @@ internal sealed class DesktopWorker
         int w = (int)monitorBounds.Width;
         int h = (int)monitorBounds.Height;
 
-        // Position the window to the monitor
+        // Position the window at the target screen location (still a top-level window)
         NativeMethods.SetWindowPos(hwnd, new IntPtr(1), x, y, w, h, NativeMethods.SWP_NOACTIVATE);
 
+        // Compute position relative to the parent window BEFORE reparenting.
+        // This correctly handles multi-monitor offsets for both raised and non-raised desktop.
+        IntPtr targetParent = _isRaisedDesktop ? _progman : _workerW;
         var prct = new NativeMethods.RECT();
-        if (!_isRaisedDesktop && _workerW != IntPtr.Zero)
+        if (targetParent != IntPtr.Zero)
         {
-            NativeMethods.MapWindowPoints(hwnd, _workerW, ref prct, 2);
+            NativeMethods.MapWindowPoints(hwnd, targetParent, ref prct, 2);
         }
 
         // Attach to desktop
         if (!TryAttachToDesktop(hwnd))
             return false;
 
-        if (_isRaisedDesktop)
-        {
-            // On raised desktop, position relative to progman
-            NativeMethods.SetWindowPos(hwnd, new IntPtr(1), x, y, w, h,
-                NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_NOZORDER);
-        }
-        else
-        {
-            // Position relative to WorkerW
-            NativeMethods.SetWindowPos(hwnd, new IntPtr(1), prct.Left, prct.Top, w, h,
-                NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_NOZORDER);
-        }
+        // Position within the parent using mapped coordinates
+        int childX = targetParent != IntPtr.Zero ? prct.Left : x;
+        int childY = targetParent != IntPtr.Zero ? prct.Top : y;
+        NativeMethods.SetWindowPos(hwnd, new IntPtr(1), childX, childY, w, h,
+            NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_NOZORDER);
 
         return true;
     }

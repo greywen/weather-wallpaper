@@ -17,6 +17,7 @@ namespace WeatherWallpaper.Services;
 public sealed class WallpaperEngine : IDisposable
 {
     private readonly DesktopWorker _desktopWorker;
+    private readonly InputForwarder _inputForwarder;
     private WinFormsForm? _hostForm;
     private WebView2? _webView;
     private bool _isRunning;
@@ -34,6 +35,7 @@ public sealed class WallpaperEngine : IDisposable
     public WallpaperEngine()
     {
         _desktopWorker = new DesktopWorker();
+        _inputForwarder = new InputForwarder();
     }
 
     public async Task StartAsync(string url, Models.MonitorInfo monitor, bool audioEnabled)
@@ -53,8 +55,9 @@ public sealed class WallpaperEngine : IDisposable
             _currentUrl = url;
             _currentMonitor = monitor;
 
-            // Create the host form - positioned off-screen initially, no flashing
+            // Create the host form - set to target monitor size to ensure WebView2 initializes correctly
             _hostForm = new WallpaperHostForm();
+            _hostForm.Size = new System.Drawing.Size((int)monitor.Bounds.Width, (int)monitor.Bounds.Height);
             _hostForm.Show();
 
             // Initialize WebView2
@@ -74,6 +77,16 @@ public sealed class WallpaperEngine : IDisposable
                 Stop();
                 return;
             }
+
+            // Force layout update after reparenting to ensure WebView2 fills the form
+            _hostForm.PerformLayout();
+
+            // Start input forwarding so the wallpaper can receive mouse events
+            _inputForwarder.Start(
+                _hostForm.Handle,
+                _desktopWorker.Progman,
+                _desktopWorker.WorkerW,
+                _desktopWorker.ShellDefView);
 
             _isRunning = true;
             WallpaperStarted?.Invoke(this, EventArgs.Empty);
@@ -147,6 +160,8 @@ public sealed class WallpaperEngine : IDisposable
     {
         _isRunning = false;
 
+        _inputForwarder.Stop();
+
         if (_webView != null)
         {
             try
@@ -174,6 +189,7 @@ public sealed class WallpaperEngine : IDisposable
     public void Dispose()
     {
         Stop();
+        _inputForwarder.Dispose();
     }
 }
 
@@ -190,7 +206,7 @@ public class WallpaperHostForm : WinFormsForm
         this.WindowState = WinFormsFormWindowState.Normal;
         this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
         this.Location = new System.Drawing.Point(-32000, -32000);
-        this.Size = new System.Drawing.Size(1, 1);
+        // Size is set by WallpaperEngine before Show()
         this.ShowInTaskbar = false;
         this.ShowIcon = false;
         this.BackColor = System.Drawing.Color.Black;
