@@ -29,18 +29,17 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Publish framework-dependent exe (lightweight)
+      - name: Publish framework-dependent exe
         run: |
           dotnet publish WeatherWallpaper/WeatherWallpaper.csproj `
             -c Release `
             -r win-x64 `
             --self-contained false `
             -p:PublishSingleFile=true `
-            -p:DebugType=embedded `
             -p:Version=${{ steps.version.outputs.VERSION }} `
             -o publish-lite
 
-      - name: Publish self-contained exe (full)
+      - name: Publish self-contained for zip package
         run: |
           dotnet publish WeatherWallpaper/WeatherWallpaper.csproj `
             -c Release `
@@ -49,15 +48,13 @@ jobs:
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
             -p:IncludeAllContentForSelfExtract=true `
-            -p:DebugType=embedded `
             -p:Version=${{ steps.version.outputs.VERSION }} `
             -o publish-full
 
-      - name: Copy standalone executables
+      - name: Copy standalone exe
         shell: pwsh
         run: |
-          Copy-Item "publish-lite\WeatherWallpaper.exe" "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-lite.exe"
-          Copy-Item "publish-full\WeatherWallpaper.exe" "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-full.exe"
+          Copy-Item "publish-lite\WeatherWallpaper.exe" "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe"
 
       - name: Create zip package
         shell: pwsh
@@ -67,23 +64,13 @@ jobs:
       - name: Verify build artifacts
         shell: pwsh
         run: |
-          # Verify lite exe
-          $lite = "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-lite.exe"
-          if (!(Test-Path $lite)) {
-            Write-Error "Lite exe not found!"
+          $exe = "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe"
+          if (!(Test-Path $exe)) {
+            Write-Error "Exe not found!"
             exit 1
           }
-          $liteSize = (Get-Item $lite).Length / 1MB
-          Write-Host "Lite exe size: $([math]::Round($liteSize, 2)) MB"
-
-          # Verify full exe
-          $full = "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-full.exe"
-          if (!(Test-Path $full)) {
-            Write-Error "Full exe not found!"
-            exit 1
-          }
-          $fullSize = (Get-Item $full).Length / 1MB
-          Write-Host "Full exe size: $([math]::Round($fullSize, 2)) MB"
+          $exeSize = (Get-Item $exe).Length / 1MB
+          Write-Host "Exe size: $([math]::Round($exeSize, 2)) MB"
           
           $zip = "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.zip"
           if (!(Test-Path $zip)) {
@@ -102,8 +89,7 @@ jobs:
           prerelease: ${{ contains(steps.version.outputs.VERSION, 'Beta') || contains(steps.version.outputs.VERSION, 'alpha') || contains(steps.version.outputs.VERSION, 'rc') }}
           generate_release_notes: true
           files: |
-            WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-lite.exe
-            WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64-full.exe
+            WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe
             WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.zip
 
   download-test:

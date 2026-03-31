@@ -18,11 +18,7 @@
     <FileVersion>0.1.2.0</FileVersion>
     <AssemblyVersion>0.1.2.0</AssemblyVersion>
 
-    <!-- Single-file publish settings (SelfContained and RuntimeIdentifier set at publish time) -->
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>embedded</DebugType>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
