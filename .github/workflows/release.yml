@@ -29,6 +29,20 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Publish self-contained for zip package
+        run: |
+          dotnet publish WeatherWallpaper/WeatherWallpaper.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:Version=${{ steps.version.outputs.VERSION }} `
+            -o publish-full
+
+      - name: Clean intermediate artifacts
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force WeatherWallpaper\obj\Release -ErrorAction SilentlyContinue
+
       - name: Publish framework-dependent exe
         run: |
           dotnet publish WeatherWallpaper/WeatherWallpaper.csproj `
@@ -39,26 +53,10 @@ jobs:
             -p:Version=${{ steps.version.outputs.VERSION }} `
             -o publish-lite
 
-      - name: Publish self-contained for zip package
-        run: |
-          dotnet publish WeatherWallpaper/WeatherWallpaper.csproj `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:IncludeAllContentForSelfExtract=true `
-            -p:Version=${{ steps.version.outputs.VERSION }} `
-            -o publish-full
-
-      - name: Copy standalone exe
+      - name: Prepare release artifacts
         shell: pwsh
         run: |
           Copy-Item "publish-lite\WeatherWallpaper.exe" "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe"
-
-      - name: Create zip package
-        shell: pwsh
-        run: |
           Compress-Archive -Path publish-full\* -DestinationPath "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.zip"
 
       - name: Verify build artifacts
