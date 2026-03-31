@@ -2,6 +2,12 @@
 
 将网页作为 Windows 桌面动态壁纸运行的轻量应用。本项目基于 Lively 进行二次开发，聚焦网页天气桌面场景。当前实现基于 WPF + WinForms + WebView2，通过 WorkerW/Progman 窗口层把网页嵌入桌面图标后方，并支持托盘控制、显示器选择、声音开关和开机启动。
 
+## 演示
+
+- 在线查看：<a href="videos/demo.mp4">demo.mp4</a>
+
+<video src="videos/demo.mp4" controls muted loop playsinline></video>
+
 ## 功能特性
 
 - 将任意 `http/https` 网页作为桌面壁纸运行
