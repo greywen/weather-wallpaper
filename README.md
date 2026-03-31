@@ -43,7 +43,7 @@
 ### 1. 获取源码
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/greywen/weather-wallpaper
 cd weather-wallpaper
 ```
 
