@@ -1,92 +1,96 @@
+**English** | [简体中文](README.zh-CN.md)
+
 # Weather Wallpaper
 
-将网页作为 Windows 桌面动态壁纸运行的轻量应用。本项目基于 Lively 进行二次开发，聚焦网页天气桌面场景。当前实现基于 WPF + WinForms + WebView2，通过 WorkerW/Progman 窗口层把网页嵌入桌面图标后方，并支持托盘控制、显示器选择、声音开关和开机启动。
+A lightweight Windows app that runs web pages as animated desktop wallpapers. This project is a focused derivative of Lively, tailored for weather-themed desktop experiences. It uses WPF + WinForms + WebView2, attaches the rendered page behind desktop icons through the WorkerW/Progman window layer, and includes tray controls, monitor selection, audio toggle, and auto-start support.
 
-## [greywen/web-weather](https://github.com/greywen/web-weather)
+## Related Project
 
-## 演示
+- [greywen/web-weather](https://github.com/greywen/web-weather)
+
+## Demo
 
 ![demo](demo.gif)
 
-## 功能特性
+## Features
 
-- 将任意 `http/https` 网页作为桌面壁纸运行
-- 支持多显示器环境下选择目标显示器（单次仅运行一个实例/一个目标屏）
-- 支持网页声音开关
-- 支持写入 Windows 当前用户开机启动项
-- 托盘常驻，提供设置、停止、重启、退出入口
-- 自动保存上次配置并在启动时自动恢复
-- 支持鼠标事件转发，允许桌面壁纸页面交互（鼠标移动/左右键/滚轮）
+- Run any `http/https` web page as a desktop wallpaper
+- Choose the target monitor in multi-monitor environments (one running instance / one target screen at a time)
+- Toggle page audio on or off
+- Register the app in the current user's Windows startup items
+- Keep the app in the system tray with entries for settings, stop, restart, and exit
+- Save the last configuration automatically and restore it on startup
+- Forward mouse input so the wallpaper page remains interactive (move / left click / right click / wheel)
 
-## 技术栈
+## Tech Stack
 
-- .NET 9（`net9.0-windows10.0.18362.0`）
-- WPF（主程序与设置窗口）
-- WinForms（隐藏宿主窗体）
+- .NET 9 (`net9.0-windows10.0.18362.0`)
+- WPF (main app and settings window)
+- WinForms (hidden host window)
 - Microsoft.Web.WebView2
-- Win32 API（WorkerW/Progman 贴壁纸与输入转发）
-- Newtonsoft.Json（本地设置持久化）
+- Win32 API (WorkerW/Progman wallpaper attachment and input forwarding)
+- Newtonsoft.Json (local settings persistence)
 
-## 运行环境
+## Requirements
 
-- Windows 10 1903+ 或 Windows 11
-- 建议 x64 环境（项目默认 `Platform=x64`）
-- 已安装 WebView2 Runtime
+- Windows 10 1903+ or Windows 11
+- x64 is recommended (the project defaults to `Platform=x64`)
+- WebView2 Runtime installed
 
-开发构建还需要：
+For development builds you also need:
 
 - .NET 9 SDK
-- Visual Studio 2022（可选，推荐）
+- Visual Studio 2022 (optional, recommended)
 
-## 快速开始
+## Quick Start
 
-### 1. 获取源码
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/greywen/weather-wallpaper
 cd weather-wallpaper
 ```
 
-### 2. 还原与构建
+### 2. Restore and build
 
 ```bash
 dotnet restore WeatherWallpaper.sln
 dotnet build WeatherWallpaper.sln -c Release -p:Platform=x64
 ```
 
-### 3. 运行
+### 3. Run
 
 ```bash
 dotnet run --project WeatherWallpaper/WeatherWallpaper.csproj -c Debug -p:Platform=x64
 ```
 
-也可以直接用 Visual Studio 打开 `WeatherWallpaper.sln`，选择 `x64` 后运行。
+You can also open `WeatherWallpaper.sln` in Visual Studio, select `x64`, and run it there.
 
-## 使用说明
+## Usage
 
-1. 启动程序后，应用常驻系统托盘。
-2. 双击托盘图标，或右键托盘图标选择“设置”。
-3. 输入网页地址（未带协议时会自动补全为 `https://`）。
-4. 选择目标显示器。
-5. 选择是否启用声音。
-6. 选择是否开机启动。
-7. 点击“应用壁纸”。
+1. Launch the app. It stays in the system tray.
+2. Double-click the tray icon, or right-click it and choose Settings.
+3. Enter a web page URL. If no scheme is provided, the app automatically prefixes it with `https://`.
+4. Select the target monitor.
+5. Choose whether audio should be enabled.
+6. Choose whether the app should start with Windows.
+7. Click Apply Wallpaper.
 
-托盘菜单支持：
+Tray menu entries:
 
-- 设置
-- 停止壁纸
-- 重启壁纸
-- 退出
+- Settings
+- Stop Wallpaper
+- Restart Wallpaper
+- Exit
 
-## 配置与数据位置
+## Configuration and Data Paths
 
-应用数据默认保存在当前用户目录：
+Application data is stored under the current user profile by default:
 
-- 设置文件：`%LOCALAPPDATA%\WeatherWallpaper\settings.json`
-- WebView2 用户数据：`%LOCALAPPDATA%\WeatherWallpaper\WebView2Data`
+- Settings file: `%LOCALAPPDATA%\WeatherWallpaper\settings.json`
+- WebView2 user data: `%LOCALAPPDATA%\WeatherWallpaper\WebView2Data`
 
-设置文件字段示例：
+Example settings payload:
 
 ```json
 {
@@ -97,65 +101,65 @@ dotnet run --project WeatherWallpaper/WeatherWallpaper.csproj -c Debug -p:Platfo
 }
 ```
 
-开机启动通过注册表项管理：
+Windows startup is managed through the registry:
 
 - `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`
-- 键名：`WeatherWallpaper`
+- Value name: `WeatherWallpaper`
 
-## 项目结构
+## Project Structure
 
 ```text
 WeatherWallpaper/
-	App.xaml(.cs)                 # 应用入口、单实例控制、托盘与自动启动
-	SettingsWindow.xaml(.cs)      # 设置界面与应用逻辑
+	App.xaml(.cs)                 # App entry point, single-instance control, tray, and startup restore
+	SettingsWindow.xaml(.cs)      # Settings UI and apply logic
 	Models/
-		AppSettings.cs              # 设置模型与本地读写
-		MonitorInfo.cs              # 显示器信息模型
+		AppSettings.cs              # Settings model and local persistence
+		MonitorInfo.cs              # Monitor information model
 	Services/
-		WallpaperEngine.cs          # WebView2 壁纸引擎
-		MonitorService.cs           # 显示器枚举
-		StartupService.cs           # 开机启动管理
+		WallpaperEngine.cs          # WebView2 wallpaper engine
+		MonitorService.cs           # Monitor enumeration
+		StartupService.cs           # Windows startup management
 	Native/
-		DesktopWorker.cs            # WorkerW/Progman 集成
-		InputForwarder.cs           # 桌面鼠标消息转发
-		NativeMethods.cs            # Win32 P/Invoke 定义
+		DesktopWorker.cs            # WorkerW/Progman integration
+		InputForwarder.cs           # Desktop mouse message forwarding
+		NativeMethods.cs            # Win32 P/Invoke definitions
 ```
 
-## 已知限制
+## Known Limitations
 
-- 当前为单实例模式，重复启动会提示“已经在运行中”。
-- 当前仅支持单目标显示器运行（不是每块屏幕独立一份壁纸）。
-- 输入转发目前仅覆盖鼠标事件，不包含键盘输入。
-- URL 校验较轻量：仅自动补协议，不做更深层可达性校验。
+- The app is single-instance. Starting it again shows an "already running" message.
+- Only one target monitor is supported at a time, not one wallpaper per screen.
+- Input forwarding currently covers mouse input only, not keyboard input.
+- URL validation is intentionally lightweight: it auto-adds the scheme, but does not perform deeper reachability checks.
 
-## 常见问题
+## FAQ
 
-### 1) 启动后看不到壁纸
+### 1. The wallpaper does not appear after startup
 
-- 检查 WebView2 Runtime 是否安装。
-- 先尝试托盘菜单“重启壁纸”。
-- 确认输入 URL 可以在浏览器正常访问。
+- Make sure WebView2 Runtime is installed.
+- Try Restart Wallpaper from the tray menu.
+- Confirm that the target URL opens normally in a browser.
 
-### 2) 网页没有声音
+### 2. The web page has no audio
 
-- 在设置中勾选“启用声音”后重新应用。
-- 检查系统音量及对应输出设备。
+- Enable audio in settings and re-apply the wallpaper.
+- Check system volume and the active output device.
 
-### 3) 无法开机启动
+### 3. Auto-start does not work
 
-- 确认当前用户有写入 `HKCU\...\Run` 的权限。
-- 重新勾选“开机自动启动”并点击“应用壁纸”。
+- Make sure the current user can write to `HKCU\...\Run`.
+- Re-enable Start with Windows and click Apply Wallpaper again.
 
-## 版本
+## Versioning
 
-当前项目版本（`WeatherWallpaper.csproj`）：`0.1.1-Beta`
+The repository currently declares `0.1.2-Beta` in `WeatherWallpaper.csproj`. Published releases are tag-driven (`v*`), so release packages may be newer than the project file metadata in the repository.
 
-## 上游项目与致谢
+## Upstream and Credits
 
-- 本项目基于 Lively 做二次开发：<https://github.com/rocksdanister/lively>
-- 桌面嵌入相关思路参考了 Lively 的 WinDesktopCore 方案
-- Lively 使用 GPL-3.0 许可证，分发衍生版本时请同时遵循上游许可证要求
+- This project is derived from Lively: <https://github.com/rocksdanister/lively>
+- The desktop embedding approach is based on ideas from Lively's WinDesktopCore implementation
+- Lively is licensed under GPL-3.0, so redistributed derivative builds should also follow the upstream license requirements
 
-## 许可证
+## License
 
-仓库当前未单独声明开源许可证。建议尽快补充与上游许可证兼容的 `LICENSE` 文件后再分发。
+This repository does not currently include a standalone open-source license file. Adding a `LICENSE` file that is compatible with the upstream license should be treated as a prerequisite before redistribution.
