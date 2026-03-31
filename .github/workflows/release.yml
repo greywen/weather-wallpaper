@@ -37,8 +37,15 @@ jobs:
             -p:PublishSingleFile=true `
             -p:SelfContained=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:IncludeAllContentForSelfExtract=true `
+            -p:DebugType=embedded `
             -p:Version=${{ steps.version.outputs.VERSION }} `
             -o publish
+
+      - name: Copy standalone exe
+        shell: pwsh
+        run: |
+          Copy-Item "publish\WeatherWallpaper.exe" "WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe"
 
       - name: Create zip package
         shell: pwsh
@@ -73,6 +80,7 @@ jobs:
           prerelease: ${{ contains(steps.version.outputs.VERSION, 'Beta') || contains(steps.version.outputs.VERSION, 'alpha') || contains(steps.version.outputs.VERSION, 'rc') }}
           generate_release_notes: true
           files: |
+            WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.exe
             WeatherWallpaper-v${{ steps.version.outputs.VERSION }}-win-x64.zip
 
   download-test:
